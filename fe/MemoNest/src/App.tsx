@@ -1,14 +1,25 @@
-import { Button, Container, Typography } from '@mui/material';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LeftHandSidePane from './components/LeftHandSidePane';
 
-export default function Home() {
+function Calendar() {
+  return <div>Kalendarz content here</div>;
+}
+
+function Settings() {
+  return <div>Ustawienia content here</div>;
+}
+
+export default function App() {
   return (
-    <Container maxWidth="md">
-      <Typography variant="h3" gutterBottom>
-        MemoNest
-      </Typography>
-      <Button variant="contained" color="primary">
-        Dodaj wydarzenie
-      </Button>
-    </Container>
+    <BrowserRouter>
+      <LeftHandSidePane />
+      <main style={{ marginLeft: 240, padding: 16, flex: 1 }}>
+        <Routes>
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/calendar" replace />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
   );
 }
