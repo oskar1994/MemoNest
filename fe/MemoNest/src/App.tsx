@@ -1,9 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LeftHandSidePane from './components/LeftHandSidePane';
-
-function Calendar() {
-  return <div>Kalendarz content here</div>;
-}
+import Calendar from './components/Calendar';
 
 function Settings() {
   return <div>Ustawienia content here</div>;
