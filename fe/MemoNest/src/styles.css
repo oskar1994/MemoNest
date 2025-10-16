@@ -1,0 +1,10 @@
+.fc-daygrid-day:hover {
+  cursor: pointer;
+}
+
+
+
+.fc-timegrid-slot:hover {
+  cursor: pointer;
+  transition: background-colo 0.2s ease;
+}
