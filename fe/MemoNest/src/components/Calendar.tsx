@@ -25,14 +25,16 @@ const Calendar = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-  const [eventToAddDateStr, setEventToAddDateStr] = useState<string>();
-  const [eventToAddTime, setEventToAddTime] = useState<Date | null>(null);
+  const [eventToAddDateTime, setEventToAddDateTime] = useState<Date | null>(
+    null,
+  );
 
   const handleAddEvent = (event: {
     title: string;
     description: string;
+    location: string;
     date: string;
-    time: Date | null;
+    end: string;
   }) => {
     setEvents((prev) => [...prev, event]);
   };
@@ -68,18 +70,16 @@ const Calendar = () => {
           //  );
         }}
         dateClick={(info) => {
-          setEventToAddDateStr(info.dateStr.slice(0, 10));
-          setEventToAddTime(info.date);
+          //setEventToAddDateStr(info.dateStr.slice(0, 10));
+          setEventToAddDateTime(info.date);
           setIsAddEventModalOpen(true);
-          //  alert(`Kliknięto pustą datę: ${info.dateStr}`);
         }}
       />
       <AddEventModal
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}
         onAddEvent={handleAddEvent}
-        eventToAddDateStr={eventToAddDateStr}
-        eventToAddTime={eventToAddTime}
+        eventToAddDateTime={eventToAddDateTime}
       />
 
       <Modal

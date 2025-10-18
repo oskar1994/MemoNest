@@ -6,53 +6,71 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { pl } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type AddEventModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onAddEvent: (event: Event) => void;
-  eventToAddDateStr?: string;
-  eventToAddTime: Date | null;
+  eventToAddDateTime: Date | null;
 };
 
 const AddEventModal: React.FC<AddEventModalProps> = ({
   isOpen,
   onClose,
   onAddEvent,
-  eventToAddDateStr,
-  eventToAddTime,
+  eventToAddDateTime,
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState<string | undefined>(eventToAddDateStr);
-  const [selectedTime, setSelectedTime] = useState<Date | null>(eventToAddTime);
+  const [location, setLocation] = useState('');
+  const [date, setDate] = useState<string | undefined>(undefined);
+  const [time, setTime] = useState<Date | null>(null);
 
   useEffect(() => {
-    setDate(eventToAddDateStr);
-    setSelectedTime(eventToAddTime);
-  }, [eventToAddDateStr, eventToAddTime, isOpen]);
+    eventToAddDateTime && setDate(format(eventToAddDateTime, 'yyyy-MM-dd'));
+    if (!eventToAddDateTime?.toString()?.includes('00:00:00')) {
+      setTime(eventToAddDateTime);
+    } else {
+      setTime(null);
+    }
+  }, [eventToAddDateTime, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title && date) {
-      onAddEvent({ title, description, date, time: selectedTime });
+      onAddEvent({
+        title,
+        description,
+        location,
+        date: getDate(),
+        end: '2025-10-17 22:00',
+      });
       setTitle('');
       setDescription('');
+      setLocation('');
       setDate('');
-      setSelectedTime(null);
+      setTime(null);
       onClose();
     }
   };
 
+  const getDate = (): string => {
+    if (time) return format(time, 'yyyy-MM-dd HH:mm');
+    if (date) return format(date, 'yyyy-MM-dd');
+    return '';
+  };
+
   const handleTimeChange = (newValue: Date | null) => {
-    setSelectedTime(newValue);
+    setTime(newValue);
   };
 
   const onCloseButtonClicked = () => {
     setTitle('');
     setDescription('');
+    setLocation('');
     setDate('');
-    setSelectedTime(null);
+    setTime(null);
     onClose();
   };
 
@@ -76,7 +94,12 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               label="Opis"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
+              fullWidth
+            />
+            <TextField
+              label="Miejsce"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               fullWidth
             />
             <TextField
@@ -94,7 +117,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             >
               <TimePicker
                 label="Godzina"
-                value={selectedTime}
+                value={time}
                 onChange={handleTimeChange}
                 ampm={false} // 24-hour format
               />
