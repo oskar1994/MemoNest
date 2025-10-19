@@ -1,78 +1,94 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Modal from './common/Modal';
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField } from '@mui/material';
 import type { Event } from './types/Event';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { pl } from 'date-fns/locale';
-import { format } from 'date-fns';
+import 'dayjs/locale/pl';
+import dayjs, { Dayjs } from 'dayjs';
+import DateFields from './DateFields';
+
+export type DurationOption = '15' | '30' | '45' | '60' | '120' | 'custom';
+
+export const DURATION_OPTIONS: { label: string; value: DurationOption }[] = [
+  { label: '15 minut', value: '15' },
+  { label: '30 minut', value: '30' },
+  { label: '45 minut', value: '45' },
+  { label: '1 godzina', value: '60' },
+  { label: '2 godziny', value: '120' },
+  { label: 'Niestandardowy', value: 'custom' },
+];
 
 type AddEventModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onAddEvent: (event: Event) => void;
-  eventToAddDateTime: Date | null;
+  date: Date | null;
 };
 
 const AddEventModal: React.FC<AddEventModalProps> = ({
   isOpen,
   onClose,
   onAddEvent,
-  eventToAddDateTime,
+  date,
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [date, setDate] = useState<string | undefined>(undefined);
-  const [time, setTime] = useState<Date | null>(null);
+
+  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [duration, setDuration] = useState<DurationOption>('30');
+  const [customEndDate, setCustomEndDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
-    eventToAddDateTime && setDate(format(eventToAddDateTime, 'yyyy-MM-dd'));
-    if (!eventToAddDateTime?.toString()?.includes('00:00:00')) {
-      setTime(eventToAddDateTime);
-    } else {
-      setTime(null);
-    }
-  }, [eventToAddDateTime, isOpen]);
+    date && setStartDate(dayjs(date));
+  }, [date, isOpen]);
+
+  useEffect(() => {
+    console.log('AddEventModal re-render');
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title && date) {
-      onAddEvent({
-        title,
-        description,
-        location,
-        date: getDate(),
-        end: '2025-10-17 22:00',
-      });
-      setTitle('');
-      setDescription('');
-      setLocation('');
-      setDate('');
-      setTime(null);
-      onClose();
-    }
-  };
 
-  const getDate = (): string => {
-    if (time) return format(time, 'yyyy-MM-dd HH:mm');
-    if (date) return format(date, 'yyyy-MM-dd');
-    return '';
-  };
+    if (!title.trim()) return;
 
-  const handleTimeChange = (newValue: Date | null) => {
-    setTime(newValue);
+    onAddEvent({
+      title,
+      description,
+      location,
+      date: isAllDay
+        ? startDate!.format('YYYY-MM-DD')
+        : startDate!.format('YYYY-MM-DD HH:mm'),
+      end: computedEndDate ? computedEndDate.format('YYYY-MM-DD HH:mm') : '',
+    });
+
+    resetForm();
+    onClose();
   };
 
   const onCloseButtonClicked = () => {
+    resetForm();
+    onClose();
+  };
+
+  const resetForm = () => {
     setTitle('');
     setDescription('');
     setLocation('');
-    setDate('');
-    setTime(null);
-    onClose();
+    setStartDate(dayjs());
+    setIsAllDay(false);
+    setDuration('30');
+    setCustomEndDate(null);
   };
+
+  const computedEndDate = useMemo<Dayjs | null>(() => {
+    if (isAllDay) return null;
+    if (duration === 'custom') return customEndDate;
+    if (startDate && duration) {
+      return startDate.add(Number(duration), 'minute');
+    }
+    return null;
+  }, [isAllDay, duration, customEndDate, startDate]);
 
   return (
     <Modal isOpen={isOpen} title="Dodaj wydarzenie">
@@ -81,57 +97,48 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         onSubmit={handleSubmit}
         sx={{ p: 2, minWidth: 300 }}
       >
-        <Typography>
-          <Stack spacing={2}>
-            <TextField
-              label="Tytuł"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Opis"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Miejsce"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Data"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-            <LocalizationProvider
-              dateAdapter={AdapterDateFns}
-              adapterLocale={pl}
-            >
-              <TimePicker
-                label="Godzina"
-                value={time}
-                onChange={handleTimeChange}
-                ampm={false} // 24-hour format
-              />
-            </LocalizationProvider>
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
-              <Button variant="contained" type="submit">
-                Dodaj
-              </Button>
-              <Button variant="outlined" onClick={onCloseButtonClicked}>
-                Anuluj
-              </Button>
-            </Stack>
+        <Stack spacing={2}>
+          <TextField
+            label="Tytuł"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+            required
+            fullWidth
+          />
+          <TextField
+            label="Opis"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Miejsce"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            fullWidth
+          />
+          <DateFields
+            isAllDay={isAllDay}
+            setIsAllDay={setIsAllDay}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            duration={duration}
+            setDuration={setDuration}
+            customEndDate={customEndDate}
+            setCustomEndDate={setCustomEndDate}
+            computedEndDate={computedEndDate}
+          />
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button variant="contained" type="submit">
+              Dodaj
+            </Button>
+            <Button variant="outlined" onClick={onCloseButtonClicked}>
+              Anuluj
+            </Button>
           </Stack>
-        </Typography>
+        </Stack>
       </Box>
     </Modal>
   );

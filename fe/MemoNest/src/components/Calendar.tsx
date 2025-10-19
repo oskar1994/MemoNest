@@ -12,10 +12,11 @@ import AddEventModal from './AddEventModal';
 const Calendar = () => {
   const [events, setEvents] = useState<EventInput[]>([
     { title: 'Spotkanie z klientem', date: '2025-10-20' },
-    { title: 'Demo projektu', date: '2025-10-22' },
+    { title: 'Demo projektu', date: '2025-10-22', color: '#dc3545' },
     {
       title: 'Rocznica',
       date: '2025-10-14 10:10',
+      color: '#dc3545',
       extendedProps: {
         description: 'Druga rocznica ślubu z Moniką.',
         location: 'Kraków, ul Blachnickiego 3',
@@ -36,6 +37,7 @@ const Calendar = () => {
     date: string;
     end: string;
   }) => {
+    console.log(event);
     setEvents((prev) => [...prev, event]);
   };
 
@@ -79,7 +81,7 @@ const Calendar = () => {
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}
         onAddEvent={handleAddEvent}
-        eventToAddDateTime={eventToAddDateTime}
+        date={eventToAddDateTime}
       />
 
       <Modal
