@@ -5,6 +5,7 @@ import type { Event } from './types/Event';
 import 'dayjs/locale/pl';
 import dayjs, { Dayjs } from 'dayjs';
 import DateFields from './DateFields';
+import ColorPickerField from './ColorPickerField';
 
 export type DurationOption = '15' | '30' | '45' | '60' | '120' | 'custom';
 
@@ -39,6 +40,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const [duration, setDuration] = useState<DurationOption>('30');
   const [customEndDate, setCustomEndDate] = useState<Dayjs | null>(null);
 
+  const [color, setColor] = useState('#2196f3');
+
   useEffect(() => {
     date && setStartDate(dayjs(date));
   }, [date, isOpen]);
@@ -60,6 +63,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
         ? startDate!.format('YYYY-MM-DD')
         : startDate!.format('YYYY-MM-DD HH:mm'),
       end: computedEndDate ? computedEndDate.format('YYYY-MM-DD HH:mm') : '',
+      color,
     });
 
     resetForm();
@@ -79,6 +83,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     setIsAllDay(false);
     setDuration('30');
     setCustomEndDate(null);
+    setColor('#2196f3');
   };
 
   const computedEndDate = useMemo<Dayjs | null>(() => {
@@ -130,6 +135,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             setCustomEndDate={setCustomEndDate}
             computedEndDate={computedEndDate}
           />
+          <ColorPickerField selectedColor={color} onChange={setColor} />
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button variant="contained" type="submit">
               Dodaj
