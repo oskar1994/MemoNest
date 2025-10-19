@@ -53,7 +53,7 @@ const DateFields: React.FC<DateFieldsProps> = React.memo(
                 value={startDate}
                 onChange={(newValue) => setStartDate(newValue)}
                 disabled={isAllDay}
-                format="YYYY-MM-DD HH:mm"
+                format={isAllDay ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'}
               />
             </Box>
             <Box

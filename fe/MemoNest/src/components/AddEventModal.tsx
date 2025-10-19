@@ -116,7 +116,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
             label="Opis"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            fullWidth
+            multiline
+            rows={2}
           />
           <TextField
             label="Miejsce"
