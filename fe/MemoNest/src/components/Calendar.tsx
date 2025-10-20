@@ -8,6 +8,8 @@ import Modal from './common/Modal';
 import { useState } from 'react';
 import '../styles.css';
 import AddEventModal from './AddEventModal';
+import type { Event } from './types/Event';
+import EditEventModal from './EditEventModal';
 
 const Calendar = () => {
   const [events, setEvents] = useState<EventInput[]>([
@@ -29,6 +31,7 @@ const Calendar = () => {
   const [eventToAddDateTime, setEventToAddDateTime] = useState<Date | null>(
     null,
   );
+  const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
 
   const handleAddEvent = (event: {
     title: string;
@@ -59,20 +62,19 @@ const Calendar = () => {
           info.el.style.cursor = 'pointer';
         }}
         eventClick={(info) => {
-          info.jsEvent.preventDefault();
-          // const { title, start, extendedProps } = info.event;
+          const eventObj: Event = {
+            id: info.event.id,
+            title: info.event.title,
+            description: info.event.extendedProps.description || '',
+            location: info.event.extendedProps.location || '',
+            date: info.event.startStr,
+            end: info.event.endStr || '',
+            color: info.event.backgroundColor,
+          };
 
-          //setIsModalOpen(true);
-          console.log(info);
-          //  alert(
-          //    `Tytuł: ${title}\n` +
-          //      `Data: ${start?.toLocaleString()}\n` +
-          //      `Opis: ${extendedProps.description}\n` +
-          //      `Miejsce: ${extendedProps.location}`,
-          //  );
+          setEventToEdit(eventObj);
         }}
         dateClick={(info) => {
-          //setEventToAddDateStr(info.dateStr.slice(0, 10));
           setEventToAddDateTime(info.date);
           setIsAddEventModalOpen(true);
         }}
@@ -84,17 +86,20 @@ const Calendar = () => {
         date={eventToAddDateTime}
       />
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={() => {
-          alert('Potwierdzone!');
-          setIsModalOpen(false);
+      <EditEventModal
+        isOpen={!!eventToEdit}
+        onClose={() => setEventToEdit(null)}
+        eventData={eventToEdit}
+        onUpdateEvent={(updatedEvent) => {
+          eventToEdit &&
+            setEvents((prev) =>
+              prev.map((e) => (e.id === eventToEdit?.id ? updatedEvent : e)),
+            );
         }}
-        title="Czy na pewno?"
-      >
-        <p>Tej operacji nie można cofnąć. Czy chcesz kontynuować?</p>
-      </Modal>
+        onDeleteEvent={(event) => {
+          setEvents((prev) => prev.filter((e) => e.id !== event.id));
+        }}
+      />
     </>
   );
 };
