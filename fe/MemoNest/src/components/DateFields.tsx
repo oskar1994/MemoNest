@@ -16,6 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { Dayjs } from 'dayjs';
 import 'dayjs/locale/pl';
 import { DURATION_OPTIONS, type DurationOption } from './AddEventModal';
+import dayjs from 'dayjs';
 
 type DateFieldsProps = {
   isAllDay: boolean;
@@ -54,6 +55,7 @@ const DateFields: React.FC<DateFieldsProps> = React.memo(
                 onChange={(newValue) => setStartDate(newValue)}
                 disabled={isAllDay}
                 format={isAllDay ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm'}
+                minTime={dayjs().hour(7).minute(0)}
               />
             </Box>
             <Box
@@ -101,6 +103,7 @@ const DateFields: React.FC<DateFieldsProps> = React.memo(
                   onChange={(newValue) => setCustomEndDate(newValue)}
                   minDateTime={startDate ?? undefined}
                   format="YYYY-MM-DD HH:mm"
+                  minTime={dayjs().hour(7).minute(0)}
                 />
               )}
 

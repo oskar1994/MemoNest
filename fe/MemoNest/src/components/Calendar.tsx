@@ -4,7 +4,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import plLocale from '@fullcalendar/core/locales/pl';
-import Modal from './common/Modal';
 import { useState } from 'react';
 import '../styles.css';
 import AddEventModal from './AddEventModal';
@@ -26,7 +25,6 @@ const Calendar = () => {
     },
   ]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [eventToAddDateTime, setEventToAddDateTime] = useState<Date | null>(
     null,
@@ -55,7 +53,16 @@ const Calendar = () => {
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,addEventButton',
+        }}
+        customButtons={{
+          addEventButton: {
+            text: 'Dodaj wydarzenie',
+            click: () => {
+              setEventToAddDateTime(null);
+              setIsAddEventModalOpen(true);
+            },
+          },
         }}
         events={events}
         eventDidMount={(info) => {

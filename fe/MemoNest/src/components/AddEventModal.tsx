@@ -35,7 +35,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
 
-  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [isAllDay, setIsAllDay] = useState(false);
   const [duration, setDuration] = useState<DurationOption>('30');
   const [customEndDate, setCustomEndDate] = useState<Dayjs | null>(null);
@@ -43,7 +43,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
   const [color, setColor] = useState('#2196f3');
 
   useEffect(() => {
-    date && setStartDate(dayjs(date));
+    date ? setStartDate(dayjs(date)) : setStartDate(null);
   }, [date, isOpen]);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
     setTitle('');
     setDescription('');
     setLocation('');
-    setStartDate(dayjs());
+    setStartDate(null);
     setIsAllDay(false);
     setDuration('30');
     setCustomEndDate(null);
